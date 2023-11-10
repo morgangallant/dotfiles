@@ -8,6 +8,7 @@ endif
 
 call plug#begin('~/.vim/plugged')
 	Plug 'ziglang/zig.vim'
+	Plug 'github/copilot.vim'
 call plug#end()
 
 let g:zig_fmt_autosave = 1
