@@ -7,8 +7,8 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
 endif
 
 call plug#begin('~/.vim/plugged')
-	Plug 'ziglang/zig.vim'
-	Plug 'github/copilot.vim'
+    Plug 'ziglang/zig.vim'
+    Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 call plug#end()
 
 let g:zig_fmt_autosave = 1
@@ -29,11 +29,11 @@ set display=lastline
 set showmode
 set showcmd
 
-set incsearch
-set hlsearch
-
 set ttyfast
 set lazyredraw
+
+set incsearch
+set hlsearch
 
 set splitbelow
 set splitright
