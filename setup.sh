@@ -5,3 +5,6 @@ sudo scutil --set HostName mbp
 sudo scutil --set LocalHostName mbp
 sudo scutil --set ComputerName mbp
 dscacheutil -flushcache
+
+# Copy vimrc to ~/.vimrc
+cp vimrc ~/.vimrc
