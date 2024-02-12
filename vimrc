@@ -8,10 +8,6 @@ endif
 
 call plug#begin('~/.vim/plugged')
     Plug 'ziglang/zig.vim'
-    Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
-    Plug 'pangloss/vim-javascript'
-    Plug 'leafgarland/typescript-vim'
-    Plug 'peitalin/vim-jsx-typescript'
 call plug#end()
 
 let g:zig_fmt_autosave = 1
@@ -40,9 +36,10 @@ set splitright
 
 set wrapscan
 set report=0
-set synmaxcol=100
 
 set relativenumber
+set number
+set ruler
 
 set nohlsearch
 
@@ -62,7 +59,3 @@ augroup Markdown
     autocmd!
     autocmd FileType markdown set wrap
 augroup END
-
-" Special syntax handling for JSX
-autocmd BufEnter *.{js,jsx,ts,tsx} :syntax sync fromstart
-autocmd BufLeave *.{js,jsx,ts,tsx} :syntax sync clear
