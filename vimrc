@@ -8,9 +8,13 @@ endif
 
 call plug#begin('~/.vim/plugged')
     Plug 'ziglang/zig.vim'
+    Plug 'rust-lang/rust.vim'
+    Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 call plug#end()
 
 let g:zig_fmt_autosave = 1
+let g:go_fmt_command = "golines"
+let g:rustfmt_autosave = 1
 
 filetype plugin indent on
 syntax on
@@ -36,6 +40,9 @@ set splitright
 
 set wrapscan
 set report=0
+
+au BufNewFile,BufRead *.go set nolist
+au BufNewFile,BufRead *.html set nolist
 
 set relativenumber
 set number
