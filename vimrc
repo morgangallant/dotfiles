@@ -10,6 +10,8 @@ call plug#begin('~/.vim/plugged')
     Plug 'ziglang/zig.vim'
     Plug 'rust-lang/rust.vim'
     Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
+    Plug 'junegunn/fzf'
+    Plug 'junegunn/fzf.vim'
 call plug#end()
 
 let g:zig_fmt_autosave = 1
@@ -49,6 +51,12 @@ set number
 set ruler
 
 set nohlsearch
+set ignorecase
+set smartcase
+
+" File finder
+
+nmap <Leader>t :FZF<CR>
 
 set list
 if has('multi_byte') && &encoding ==# 'utf-8'
