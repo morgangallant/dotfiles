@@ -15,7 +15,6 @@ call plug#begin('~/.vim/plugged')
 call plug#end()
 
 let g:zig_fmt_autosave = 1
-let g:go_fmt_command = "golines"
 let g:rustfmt_autosave = 1
 
 colorscheme sitruuna
@@ -44,6 +43,9 @@ set nojoinspaces
 set shiftround
 set relativenumber
 set nonumber
+
+" Remap CTRL-p to FZF
+nmap <C-p> :Files<CR>
 
 " hard mode while learning vim properly
 noremap <Up> <Nop>
