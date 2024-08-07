@@ -12,10 +12,12 @@ call plug#begin('~/.vim/plugged')
     Plug 'rust-lang/rust.vim'
     Plug 'junegunn/fzf'
     Plug 'junegunn/fzf.vim'
+    Plug 'takac/vim-hardtime' " for getting better at vim
 call plug#end()
 
 let g:zig_fmt_autosave = 1
 let g:rustfmt_autosave = 1
+let g:hardtime_default_on = 1
 
 colorscheme sitruuna
 
