@@ -15,10 +15,13 @@ call plug#begin('~/.vim/plugged')
     Plug 'junegunn/fzf'
     Plug 'junegunn/fzf.vim'
     Plug 'vim-airline/vim-airline'
+    Plug 'fatih/vim-go'
 call plug#end()
 
 let g:zig_fmt_autosave = 1
 let g:rustfmt_autosave = 1
+let g:go_fmt_command = "goimports"
+let g:go_fmt_autosave = 1
 
 colorscheme sitruuna
 
