@@ -1,4 +1,6 @@
-set nocompatible
+" So far, I've stolen .vimrc configs from:
+" - https://github.com/andrewrk/dotfiles
+" - https://github.com/pushrax/dotfiles
 
 let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
 if empty(glob(data_dir . '/autoload/plug.vim'))
@@ -12,17 +14,17 @@ call plug#begin('~/.vim/plugged')
     Plug 'rust-lang/rust.vim'
     Plug 'junegunn/fzf'
     Plug 'junegunn/fzf.vim'
-    Plug 'takac/vim-hardtime' " for getting better at vim
+    Plug 'vim-airline/vim-airline'
 call plug#end()
 
 let g:zig_fmt_autosave = 1
 let g:rustfmt_autosave = 1
-let g:hardtime_default_on = 1
 
 colorscheme sitruuna
 
 syntax on
 filetype on
+set re=2
 set expandtab
 set bs=2
 set tabstop=2
@@ -46,12 +48,26 @@ set shiftround
 set relativenumber
 set nonumber
 
-" Remap CTRL-p to FZF
+" Key remaps
 nmap <C-p> :Files<CR>
+nmap <C-b> :Buffers<CR>
+nmap <C-l> :bnext<CR>
+nmap <C-h> :bprev<CR>
 
-" hard mode while learning vim properly
+" Prevent skill issues
 noremap <Up> <Nop>
 noremap <Down> <Nop>
 noremap <Left> <Nop>
 noremap <Right> <Nop>
 
+" Airline
+set laststatus=2
+set noshowmode
+let g:airline_symbols = {}
+let g:airline_left_sep = ''
+let g:airline_right_sep = ''
+let g:airline_symbols.branch = '⎇'
+let g:airline_symbols.paste = '+++'
+let g:airline#extensions#whitespace#enabled = 0
+let g:airline#extensions#hunks#non_zero_only = 1
+let g:airline#extensions#tabline#enabled = 1
