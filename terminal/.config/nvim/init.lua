@@ -178,6 +178,9 @@ require("lazy").setup({
 					},
 				}
 
+				-- Zig
+				lspconfig.zls.setup {}
+
 				-- Bash
 				local configs = require 'lspconfig.configs'
 				if not configs.bash_lsp and vim.fn.executable('base-language-server') == 1 then
