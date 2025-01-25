@@ -179,7 +179,9 @@ require("lazy").setup({
 				}
 
 				-- Zig
-				lspconfig.zls.setup {}
+				lspconfig.zls.setup {
+					cmd = { '/Users/mg/src/zls-0.13.0/zig-out/bin/zls' },
+				}
 
 				-- Bash
 				local configs = require 'lspconfig.configs'
