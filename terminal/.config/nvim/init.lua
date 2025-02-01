@@ -22,6 +22,7 @@ vim.opt.undofile = true
 vim.opt.shiftwidth = 4
 vim.opt.softtabstop = 4
 vim.opt.tabstop = 4
+vim.opt.showtabline = 2
 vim.opt.expandtab = false
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
@@ -41,6 +42,9 @@ vim.keymap.set('v', '<C-h>', '<cmd>nohlsearch<cr>')
 vim.keymap.set('n', '<C-h>', '<cmd>nohlsearch<cr>')
 vim.keymap.set('', 'H', '^')
 vim.keymap.set('', 'L', '$')
+
+vim.keymap.set('', '<C-j>', '<cmd>bprevious<cr>')
+vim.keymap.set('', '<C-k>', '<cmd>bnext<cr>')
 
 vim.keymap.set('n', '<Left>', ':echoe "Use h"<CR>', { noremap = true })
 vim.keymap.set('n', '<Right>', ':echoe "Use l"<CR>', { noremap = true })
@@ -92,10 +96,12 @@ require("lazy").setup({
 		{ "eemed/sitruuna.vim" },
 		{
 			'itchyny/lightline.vim',
+			dependencies = { "mengelbrecht/lightline-bufferline" },
 			lazy = false,
 			config = function()
 				vim.o.showmode = false
 				vim.g.lightline = {
+					colorscheme = "one",
 					active = {
 						left = {
 							{ 'mode', 'paste' },
@@ -107,6 +113,9 @@ require("lazy").setup({
 							{ 'fileencoding', 'filetype' }
 						},
 					},
+					tabline = { left = { { "buffers" } }, right = { {} } },
+					component_expand = { buffers = "lightline#bufferline#buffers" },
+					component_type = { buffers = "tabsel" },
 					component_function = {
 						filename = 'LightlineFilename'
 					},
@@ -126,6 +135,8 @@ require("lazy").setup({
 					]],
 					true
 				)
+				vim.g["lightline#bufferline#modified"] = " ★"
+				vim.g["lightline#bufferline#read_only"] = " "
 			end
 		},
 		{
