@@ -1,80 +1,57 @@
 -- MG Neovim Config
--- Inspired by:
+-- Inspirations:
 -- - https://github.com/pushrax
 -- - https://github.com/andrewrk
 -- - https://github.com/jonhoo
 
--- Leader set first
-vim.keymap.set("n", "<Space>", "<Nop>", { silent = true })
+-- Leader mapping
 vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
 
--- Preferences
-vim.opt.foldenable = false
-vim.opt.foldmethod = 'manual'
-vim.opt.foldlevelstart = 99
-vim.opt.scrolloff = 2
-vim.opt.wrap = false
-vim.opt.relativenumber = true
-vim.opt.number = true
-vim.opt.splitright = true
-vim.opt.splitbelow = true
-vim.opt.undofile = true
-vim.opt.shiftwidth = 4
-vim.opt.softtabstop = 4
-vim.opt.tabstop = 4
-vim.opt.showtabline = 2
-vim.opt.expandtab = false
-vim.opt.ignorecase = true
+-- Basic vim options
+vim.cmd('syntax on')
+vim.cmd('filetype on')
+vim.opt.expandtab = true
+vim.opt.bs = '2'
+vim.opt.tabstop = 2
+vim.opt.shiftwidth = 2
+vim.opt.autoindent = true
+vim.opt.smartindent = true
 vim.opt.smartcase = true
-vim.opt.vb = true
-vim.opt.colorcolumn = '80'
+vim.opt.ignorecase = true
+vim.opt.modeline = true
+vim.opt.compatible = false
+vim.opt.encoding = 'utf-8'
+vim.opt.hlsearch = false
+vim.opt.history = 700
+vim.opt.termguicolors = true
+vim.opt.background = 'dark'
+vim.opt.tabpagemax = 1000
+vim.opt.ruler = true
+vim.opt.shiftround = true
+vim.opt.relativenumber = true
+vim.opt.number = false
+vim.opt.showtabline = 2
+
+-- Show rulers for particular languages
 vim.api.nvim_create_autocmd('Filetype', { pattern = 'rust', command = 'set colorcolumn=100' })
 vim.api.nvim_create_autocmd('Filetype', { pattern = 'zig', command = 'set colorcolumn=100' })
-vim.opt.listchars = 'tab:^ ,nbsp:¬,extends:»,precedes:«,trail:•'
 
--- Hotkeys
+-- Navigating buffers
+vim.keymap.set('', '<C-h>', '<cmd>bprevious<cr>')
+vim.keymap.set('', '<C-l>', '<cmd>bnext<cr>')
 
-vim.keymap.set('', '<C-p>', '<cmd>Files<cr>')
-vim.keymap.set('n', '<leader>;', '<cmd>Buffers<cr>')
-vim.keymap.set('n', '<leader>w', '<cmd>w<cr>')
-vim.keymap.set('n', ';', ':')
-vim.keymap.set('v', '<C-h>', '<cmd>nohlsearch<cr>')
-vim.keymap.set('n', '<C-h>', '<cmd>nohlsearch<cr>')
-vim.keymap.set('', 'H', '^')
-vim.keymap.set('', 'L', '$')
-
-vim.keymap.set('', '<C-j>', '<cmd>bprevious<cr>')
-vim.keymap.set('', '<C-k>', '<cmd>bnext<cr>')
-
+-- Enforcing good habits
 vim.keymap.set('n', '<Left>', ':echoe "Use h"<CR>', { noremap = true })
 vim.keymap.set('n', '<Right>', ':echoe "Use l"<CR>', { noremap = true })
 vim.keymap.set('n', '<Up>', ':echoe "Use k"<CR>', { noremap = true })
 vim.keymap.set('n', '<Down>', ':echoe "Use j"<CR>', { noremap = true })
-
 vim.keymap.set('i', '<Left>', '<ESC>:echoe "Use h"<CR>', { noremap = true })
 vim.keymap.set('i', '<Right>', '<ESC>:echoe "Use l"<CR>', { noremap = true })
 vim.keymap.set('i', '<Up>', '<ESC>:echoe "Use k"<CR>', { noremap = true })
 vim.keymap.set('i', '<Down>', '<ESC>:echoe "Use j"<CR>', { noremap = true })
 
--- Autocommands
-
--- Jump to last edit position on opening file
-vim.api.nvim_create_autocmd(
-	'BufReadPost',
-	{
-		pattern = '*',
-		callback = function(ev)
-			if vim.fn.line("'\"") > 1 and vim.fn.line("'\"") <= vim.fn.line("$") then
-				if not vim.fn.expand('%:p'):find('.git', 1, true) then
-					vim.cmd('exe "normal! g\'\\""')
-				end
-			end
-		end
-	}
-)
-
--- Plugins
-
+-- Bootstrap lazy.nvim, will auto-install if missing
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -91,10 +68,36 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Install and configure plugins
 require("lazy").setup({
-	spec = {
-		{ "eemed/sitruuna.vim" },
-		{
+  spec = {
+    -- Color scheme
+    { "eemed/sitruuna.vim" },
+
+    -- Zig
+    {
+      "ziglang/zig.vim",
+      ft = { "zig" },
+      config = function()
+        vim.g.zig_fmt_autosave = 0
+        vim.g.zig_fmt_parse_errors = 0
+      end
+    },
+
+    -- Rust
+    {
+      "rust-lang/rust.vim",
+      ft = { "rust" },
+      config = function()
+        vim.g.rustfmt_autosave = 1
+        vim.g.rustfmt_emit_files = 1
+        vim.g.rustfmt_fail_silently = 0
+        vim.g.rust_clip_command = "wl-copy"
+      end
+    },
+
+    -- Lightline for status bar
+    {
 			'itchyny/lightline.vim',
 			dependencies = { "mengelbrecht/lightline-bufferline" },
 			lazy = false,
@@ -139,19 +142,121 @@ require("lazy").setup({
 				vim.g["lightline#bufferline#read_only"] = " "
 			end
 		},
-		{
-			'ggandor/leap.nvim',
-			config = function()
-				require('leap').create_default_mappings()
-			end
-		},
-		{
-			'notjedi/nvim-rooter.lua',
-			config = function()
-				require('nvim-rooter').setup()
-			end
-		},
-		{
+
+    -- LSP
+    {
+      "neovim/nvim-lspconfig",
+      config = function()
+        local lspconfig = require('lspconfig')
+
+        -- Zig
+        lspconfig.zls.setup {
+          settings = {
+            zls = {
+              semantic_tokens = "partial"
+            }
+          }
+        }
+
+        -- Rust
+        lspconfig.rust_analyzer.setup {
+          settings = {
+            ["rust-analyzer"] = {
+              cargo = {
+                allFeatures = true
+              },
+              imports = {
+                group = {
+                  enable = true,
+                },
+              },
+              completion = {
+                postfix = {
+                  enable = false,
+                },
+              },
+            },
+          },
+        }
+
+        -- Global mappings
+        vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
+			  vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
+			  vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
+			  vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
+
+        -- Configure keymaps after the language server attaches to the buffer
+        vim.api.nvim_create_autocmd('LspAttach', {
+          group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+          callback = function(ev)
+            vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+
+            -- Buffer local mappings
+            local opts = { buffer = ev.buf }
+            vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
+					  vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+					  vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
+					  vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
+            vim.keymap.set('n', '<C-k>', vim.lsp.buf.signature_help, opts)
+            vim.keymap.set('n', '<leader>r', vim.lsp.buf.rename, opts)
+            vim.keymap.set({ 'n', 'v' }, '<leader>a', vim.lsp.buf.code_action, opts)
+            vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+            vim.keymap.set('n', '<leader>f', function()
+						  vim.lsp.buf.format { async = true }
+					  end, opts)
+
+            local client = vim.lsp.get_client_by_id(ev.data.client_id)
+            client.server_capabilities.semanticTokensProvider = nil
+          end
+        })
+      end
+    },
+
+    -- LSP based code completion
+    {
+      "hrsh7th/nvim-cmp",
+      event = "InsertEnter",
+      dependencies = {
+			  "neovim/nvim-lspconfig",
+			  "hrsh7th/cmp-nvim-lsp",
+			  "hrsh7th/cmp-buffer",
+			  "hrsh7th/cmp-path",
+		  },
+      config = function()
+        local cmp = require 'cmp'
+        cmp.setup({
+          snippet = {
+            expand = function(args)
+              vim.fn["vsnip#anonymous"](args.body)
+            end,
+          },
+          mapping = cmp.mapping.preset.insert({
+            ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+            ['<C-f>'] = cmp.mapping.scroll_docs(4),
+            ['<C-Space>'] = cmp.mapping.complete(),
+            ['<C-e>'] = cmp.mapping.abort(),
+            ['<CR>'] = cmp.mapping.confirm({ select = true }),
+          }),
+          sources = cmp.config.sources({
+            { name = "nvim_lsp" },
+          }, {
+            { name = "path" },
+          }),
+          experimental = {
+            ghost_text = true,
+          },
+        })
+
+        cmp.setup.cmdline(':', {
+          sources = cmp.config.sources({
+            { name = 'path' }
+          })
+        })
+      end
+    },
+
+    -- Telescope for fuzzy matching
+    {
 			'nvim-telescope/telescope.nvim',
 			tag = "0.1.8",
 			dependencies = { "nvim-lua/plenary.nvim" },
@@ -163,195 +268,32 @@ require("lazy").setup({
 				vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Telescope help tags' })
 			end
 		},
-		{
-			'neovim/nvim-lspconfig',
-			config = function()
-				local lspconfig = require('lspconfig')
-
-				-- Rust
-				lspconfig.rust_analyzer.setup {
-					settings = {
-						["rust-analyzer"] = {
-							cargo = {
-								allFeatures = true,
-							},
-							imports = {
-								group = {
-									enable = false,
-								},
-							},
-							completion = {
-								postfix = {
-									enable = false,
-								},
-							},
-						},
-					},
-				}
-
-				-- Zig
-				lspconfig.zls.setup {
-					cmd = { '/Users/mg/src/zls-0.13.0/zig-out/bin/zls' },
-				}
-
-				-- Bash
-				local configs = require 'lspconfig.configs'
-				if not configs.bash_lsp and vim.fn.executable('base-language-server') == 1 then
-					configs.bash_lsp = {
-						default_config = {
-							cmd = { 'bash-language-server', 'start' },
-							filetypes = { 'sh' },
-							root_dir = require('lspconfig').util.find_git_ancestor,
-							init_options = {
-								settings = {
-									args = {}
-								}
-							}
-						}
-					}
-				end
-				if configs.bash_lsp then
-					lspconfig.bash_lsp.setup {}
-				end
-
-				-- Ruff for Python
-				local configs = require 'lspconfig.configs'
-				if not configs.ruff_lsp and vim.fn.executable('ruff-lsp') == 1 then
-					configs.ruff_lsp = {
-						default_config = {
-							cmd = { 'ruff-lsp' },
-							filetypes = { 'python' },
-							root_dir = require('lspconfig').util.find_git_ancestor,
-							init_options = {
-								settings = {
-									args = {}
-								}
-							}
-						}
-					}
-				end
-				if configs.ruff_lsp then
-					lspconfig.ruff_lsp.setup {}
-				end
-
-				-- Global mappings
-				vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
-				vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
-				vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
-				vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
-
-				-- Attaching keys after language server attach
-				vim.api.nvim_create_autocmd('LspAttach', {
-					group = vim.api.nvim_create_augroup('UserLspConfig', {}),
-					callback = function(ev)
-						vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
-
-						local opts = { buffer = ev.buf }
-						vim.keymap.set('n', 'gD', vim.lsp.buf.declaration, opts)
-						vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-						vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-						vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-						vim.keymap.set('n', '<C-s>', vim.lsp.buf.signature_help, opts)
-						vim.keymap.set('n', '<leader>r', vim.lsp.buf.rename, opts)
-						vim.keymap.set({ 'n', 'v' }, '<leader>a', vim.lsp.buf.code_action, opts)
-						vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-						vim.keymap.set('n', '<leader>f', function()
-							vim.lsp.buf.format { async = true }
-						end, opts)
-
-						local client = vim.lsp.get_client_by_id(ev.data.client_id)
-						client.server_capabilities.semanticTokensProvider = nil
-					end,
-				})
-			end
-		},
-		{
-			'hrsh7th/nvim-cmp',
-			event = "InsertEnter",
-			dependencies = {
-				'neovim/nvim-lspconfig',
-				'hrsh7th/cmp-nvim-lsp',
-				'hrsh7th/cmp-buffer',
-				'hrsh7th/cmp-path',
-			},
-			config = function()
-				local cmp = require'cmp'
-				cmp.setup({
-					snippet = {
-						expand = function(args)
-							vim.fn["vsnip#anonymous"](args.body)
-						end,
-					},
-					mapping = cmp.mapping.preset.insert({
-						['<C-b>'] = cmp.mapping.scroll_docs(-4),
-						['<C-f>'] = cmp.mapping.scroll_docs(4),
-						['<C-Space>'] = cmp.mapping.complete(),
-						['<C-e>'] = cmp.mapping.abort(),
-						['<CR>'] = cmp.mapping.confirm({select = true }),
-					}),
-					sources = cmp.config.sources({
-						{ name = 'nvim_lsp' },
-					}, {
-						{ name = 'path' },
-					}),
-					experimental = {
-						ghost_text = true,
-					},
-				})
-				cmp.setup.cmdline(':', {
-					sources = cmp.config.sources({
-						{ name = 'path' }
-					})
-				})
-			end
-		},
-		{
-			'ray-x/lsp_signature.nvim',
-			event = "VeryLazy",
-			opts = {},
-			config = function(_, opts)
-				require "lsp_signature".setup({
-					doc_lines = 0,
-					handler_opts = {
-						border = "none"
-					},
-				})
-			end
-		},
-		{ 'cespare/vim-toml' },
-		{
-			'cuducos/yaml.nvim',
-			ft = { 'yaml' },
-			dependencies = {
-				'nvim-treesitter/nvim-treesitter',
-			},
-		},
-		{
-			'rust-lang/rust.vim',
-			ft = { "rust" },
-			config = function()
-				vim.g.rustfmt_autosave = 1
-				vim.g.rustfmt_emit_files = 1
-				vim.g.rustfmt_fail_silently = 0
-				vim.g.rust_clip_command = 'wl-copy'
-			end
-		},
-		{ 'ziglang/zig.vim' },
-		{
-			'plasticboy/vim-markdown',
-			ft = { "markdown" },
-			dependencies = {
-				'godlygeek/tabular',
-			},
-			config = function()
-				vim.g.vim_markdown_folding_disabled = 1
-				vim.g.vim_markdown_frontmatter = 1
-				vim.g.vim_markdown_new_list_item_indent = 0
-				vim.g.vim_markdown_auto_insert_bullets = 0
-			end
-		}
-	},
-	checker = { enabled = false }
+  },
+  checker = { enabled = true },
 })
 
+-- Colorscheme
 vim.cmd [[colorscheme sitruuna]]
+
+-- Format Zig with ZLS
+vim.api.nvim_create_autocmd('BufWritePre',{
+  pattern = {"*.zig", "*.zon"},
+  callback = function(ev)
+    vim.lsp.buf.format()
+  end
+})
+
+-- Jump to the last edit position on opening a file.
+vim.api.nvim_create_autocmd(
+	'BufReadPost',
+	{
+		pattern = '*',
+		callback = function(ev)
+			if vim.fn.line("'\"") > 1 and vim.fn.line("'\"") <= vim.fn.line("$") then
+				if not vim.fn.expand('%:p'):find('.git', 1, true) then
+					vim.cmd('exe "normal! g\'\\""')
+				end
+			end
+		end
+	}
+)
