@@ -36,10 +36,31 @@ vim.opt.rtp:prepend(lazypath)
 -- nvim-lspconfig configuration
 local nvim_lsp_config_func = function()
   local lspconfig = require("lspconfig")
-  
+
   -- Go
-  lspconfig.gopls.setup {
+  lspconfig.gopls.setup {}
+
+  -- Rust
+  lspconfig.rust_analyzer.setup {
+    on_attach = on_attach,
+    settings = {
+      ["rust-analyzer"] = {
+        checkOnSave = {
+          command = "clippy",
+        },
+        imports = {
+          granularity = {
+            group = "module",
+          },
+          prefix = "self",
+        },
+        procMacro = {
+          enable = true,
+        },
+      },
+    },
   }
+
 
   vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float)
   vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
@@ -77,7 +98,8 @@ local nvim_cmp_config_func = function()
       expand = function(args)
         vim.fn["vsnip#anonymous"](args.body)
       end,
-      mapping = cmp.mapping.preset.insert({
+     },
+     mapping = cmp.mapping.preset.insert({
         ['<C-b>'] = cmp.mapping.scroll_docs(-4),
         ['<C-f>'] = cmp.mapping.scroll_docs(4),
         ['C-Space>'] = cmp.mapping.complete(),
@@ -85,15 +107,15 @@ local nvim_cmp_config_func = function()
         ['<CR>'] = cmp.mapping.confirm({ select = true }),
       }),
       sources = cmp.config.sources({
-        { name = "nvim_lsp" },
-      }, {
-        { name = "path" },
+        { name = 'nvim_lsp' },
+        { name = 'vsnip' },
+        { name = 'buffer' },
+        { name = 'path' }
       }),
       experimental = {
         ghost_text = false,
       },
-    },
-  })
+    })
 end
 
 -- telescope.nvim configuration
