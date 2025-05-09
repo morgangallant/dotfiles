@@ -181,7 +181,7 @@ require("lazy").setup({
 
 -- autoformat certain files on save
 vim.api.nvim_create_autocmd("BufWritePre", {
-  pattern = { "*.go" },
+  pattern = { "*.go", "*.rs" },
   callback = function(ev)
     vim.lsp.buf.format()
     vim.lsp.buf.code_action { context = { only = { 'source.organizeImports' } }, apply = true }
