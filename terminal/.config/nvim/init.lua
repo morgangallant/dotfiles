@@ -142,6 +142,12 @@ end
 -- load plugins
 require("lazy").setup({
 	spec = {
+    {
+      'eemed/sitruuna.vim',
+      config = function()
+        vim.cmd("colorscheme sitruuna")
+      end,
+    },
     { "nvim-lua/plenary.nvim" },
     {
       "neovim/nvim-lspconfig",
@@ -172,7 +178,6 @@ require("lazy").setup({
 	defaults = {
 		version = false,
 	},
-	install = { colorscheme = { "tokyonight", "habamax" } },
 	checker = {
 		enabled = true,
 		notify = false,
