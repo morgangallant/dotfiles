@@ -31,9 +31,6 @@ call plug#begin()
 " Yellow-ish color scheme
 Plug 'eemed/sitruuna.vim'
 
-" LSP support
-Plug 'neoclide/coc.nvim', {'branch': 'release'}
-
 " Language support
 Plug 'ziglang/zig.vim'
 Plug 'rust-lang/rust.vim'
@@ -56,38 +53,3 @@ let g:rustfmt_autosave = 1
 if executable('golines')
   let g:go_fmt_command = "golines"
 endif
-
-" CoC settings
-set hidden
-set updatetime=300
-set shortmess+=c
-
-" Use tab for trigger completion
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-" Use <cr> to confirm completion
-inoremap <expr> <cr> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-
-" GoTo code navigation
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-nmap <silent> ]d <Plug>(coc-diagnostic-next)
-nmap <silent> [d <Plug>(coc-diagnostic-prev)
-
-" Auto-install CoC extensions
-let g:coc_global_extensions = [
-  \ 'coc-go',
-  \ 'coc-rust-analyzer',
-  \ 'coc-zls'
-  \ ]
