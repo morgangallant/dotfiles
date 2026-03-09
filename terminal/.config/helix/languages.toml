@@ -1,0 +1,8 @@
+[[language]]
+name = "markdown"
+formatter = { command = "dprint", args = ["fmt", "--stdin", "md"]}
+
+[[language]]
+name = "go"
+auto-format = true
+formatter = { command = "golines" }
