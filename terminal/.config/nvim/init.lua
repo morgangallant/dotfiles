@@ -1,30 +1,3 @@
--- MG Neovim Configuration
--- Last updated: March 1st, 2026
-
--- set leader key to space
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
-
--- tab / backspace configuration
--- TL;DR two characters, auto-indent properly, make backspaces work nicely
-vim.opt.tabstop = 2
-vim.opt.expandtab = true
-vim.opt.shiftwidth = 2
-vim.opt.autoindent = true
-vim.opt.smartindent = true
-vim.opt.bs = '2'
-
--- better search defaults
-vim.opt.smartcase = true
-vim.opt.ignorecase = true
-vim.opt.hlsearch = false
-
--- when yanking something, use the system clipboard
--- on macos, this will use pbcopy/pbpaste
-vim.opt.clipboard = 'unnamedplus'
-
--- lazy.nvim initialization needs to happen after the basic vim configuration
--- is done, e.g. specificially after `mapleader` and `maplocalleader`.
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
@@ -41,127 +14,299 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- configuration for telescope (fuzzy file finder)
-local telescopeConfig = function()
-  local builtin = require("telescope.builtin")
-  vim.keymap.set('n', '<leader>ff', builtin.find_files)
-  vim.keymap.set('n', '<leader>fg', builtin.live_grep)
-  vim.keymap.set('n', '<leader>fb', builtin.buffers)
-end
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
 
--- completion engine config
--- this is needed for showing LSP autocomplete
-local cmpConfig = function()
-  local cmp = require('cmp')
-  cmp.setup({
-    sources = {
-      { name = 'nvim_lsp' }
-    },
-    mapping = cmp.mapping.preset.insert({
-      ['<C-Space>'] = cmp.mapping.complete(),
-      ['<CR>'] = cmp.mapping.confirm({ select = true }),
-      ['<C-n>'] = cmp.mapping.select_next_item(),
-      ['<C-p>'] = cmp.mapping.select_prev_item(),
-    })
-  })
-end
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_node_provider = 0
+vim.g.loaded_python3_provider = 0
 
--- lsp config
-local lspConfig = function()
-  local lspconfig = require('lspconfig')
-  local capabilities = require('cmp_nvim_lsp').default_capabilities()
+vim.schedule(function()
+  vim.opt.clipboard = "unnamedplus"
+end)
 
-  -- setup keybinds
-  vim.api.nvim_create_autocmd('LspAttach', {
-    callback = function(args)
-      local buf = args.buf
-      local opts = { buffer = buf }
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 2
+vim.opt.tabstop = 2
+vim.opt.softtabstop = 2
+vim.opt.signcolumn = "yes"
+vim.opt.updatetime = 250
 
-      -- navigation
-      vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
-      vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
-      vim.keymap.set('n', 'gi', vim.lsp.buf.implementation, opts)
-      vim.keymap.set('n', 'gy', vim.lsp.buf.type_definition, opts)
-
-      -- info
-      vim.keymap.set('n', 'K', vim.lsp.buf.hover, opts)
-      vim.keymap.set('n', '<leader>k', vim.lsp.buf.signature_help, opts)
-
-      -- actions
-      vim.keymap.set('n', '<leader>ca', vim.lsp.buf.code_action, opts)
-      vim.keymap.set('n', '<leader>rn', vim.lsp.buf.rename, opts)
-      vim.keymap.set('n', '<leader>f', function() vim.lsp.buf.format({ async = true }) end, opts)
-
-      -- diagnostics
-      vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, opts)
-      vim.keymap.set('n', ']d', vim.diagnostic.goto_next, opts)
-      vim.keymap.set('n', '<leader>d', vim.diagnostic.open_float, opts)
-    end
-  })
-
-  -- rust
-  lspconfig.rust_analyzer.setup {
-    capabilities = capabilities,
-    settings = {
-      ["rust-analyzer"] = {
-        check = {
-          command = "clippy"
-        },
-        cargo = {
-          targetDir = true,
-          buildScripts = {
-            enable = true
-          }
-        },
-        diagnostics = {
-          disabled = { "unresolved-proc-macro" }
-        },
-        numThreads = 4
-      }
-    }
-  }
-end
-
--- load plugins with lazy.nvim
 require("lazy").setup({
   spec = {
     {
-      'eemed/sitruuna.vim',
+      "menduz/sitruuna.vim",
       config = function()
-        vim.cmd("colorscheme sitruuna")
+        vim.cmd.colorscheme("sitruuna")
       end,
     },
-    { 'nvim-lua/plenary.nvim' },
+
     {
-      'nvim-telescope/telescope.nvim',
-      config = telescopeConfig
-    },
-    { 'hrsh7th/cmp-nvim-lsp' },
-    {
-      'hrsh7th/nvim-cmp',
-      config = cmpConfig
+      "mason-org/mason.nvim",
+      opts = {},
     },
     {
-      'neovim/nvim-lspconfig',
-      config = lspConfig
+      "mason-org/mason-lspconfig.nvim",
+      dependencies = { "mason-org/mason.nvim", "neovim/nvim-lspconfig" },
+      opts = {
+
+        ensure_installed = { "lua_ls", "rust_analyzer" },
+        automatic_enable = true,
+      },
     },
-    { 'github/copilot.vim' }
+
+    {
+      "WhoIsSethDaniel/mason-tool-installer.nvim",
+      dependencies = { "mason-org/mason.nvim" },
+      opts = {
+        ensure_installed = { "stylua" },
+      },
+    },
+
+    {
+      "folke/lazydev.nvim",
+      ft = "lua",
+      opts = {
+        library = {
+          { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+        },
+      },
+    },
+
+    {
+      "saghen/blink.cmp",
+      version = "1.*",
+      build = "cargo build --release",
+      opts = {
+        keymap = {
+          preset = "default",
+          ["<CR>"] = { "accept", "fallback" },
+          ["<Tab>"] = { "select_and_accept", "snippet_forward", "fallback" },
+          ["<S-Tab>"] = { "snippet_backward", "fallback" },
+        },
+        fuzzy = {
+          prebuilt_binaries = { download = false },
+        },
+        completion = {
+          documentation = { auto_show = true },
+        },
+        sources = {
+          default = { "lsp", "path", "snippets", "buffer", "lazydev" },
+          providers = {
+            lazydev = {
+              name = "LazyDev",
+              module = "lazydev.integrations.blink",
+              score_offset = 100,
+            },
+          },
+        },
+      },
+    },
+
+    {
+      "neovim/nvim-lspconfig",
+      dependencies = { "saghen/blink.cmp" },
+      config = function()
+        vim.lsp.config("*", {
+          capabilities = require("blink.cmp").get_lsp_capabilities(),
+        })
+
+        vim.lsp.config("lua_ls", {
+          settings = {
+            Lua = {
+              runtime = { version = "LuaJIT" },
+              diagnostics = { globals = { "vim" } },
+              format = { enable = false },
+            },
+          },
+        })
+
+        vim.lsp.config("rust_analyzer", {
+          settings = {
+            ["rust-analyzer"] = {
+              cargo = {
+                targetDir = true,
+                buildScripts = { enable = true },
+              },
+              check = { command = "check" },
+              procMacro = { enable = true },
+              files = {
+                excludeDirs = { ".git", "target", ".direnv" },
+              },
+            },
+          },
+        })
+      end,
+    },
+
+    {
+      "stevearc/conform.nvim",
+      event = { "BufWritePre" },
+      cmd = { "ConformInfo" },
+      opts = {
+        formatters_by_ft = {
+          lua = { "stylua" },
+        },
+        format_on_save = {
+          timeout_ms = 2000,
+          lsp_format = "fallback",
+        },
+      },
+    },
+
+    {
+      "nvim-telescope/telescope.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+      },
+      cmd = "Telescope",
+      keys = {
+        { "<leader>f", "<cmd>Telescope find_files<cr>", desc = "Find files" },
+        { "<leader>g", "<cmd>Telescope live_grep<cr>", desc = "Live grep" },
+        { "<leader>b", "<cmd>Telescope buffers<cr>", desc = "Buffers" },
+        { "<leader>/", "<cmd>Telescope current_buffer_fuzzy_find<cr>", desc = "Search current buffer" },
+        { "<leader>?", "<cmd>Telescope help_tags<cr>", desc = "Help tags" },
+        { "<leader>d", "<cmd>Telescope diagnostics<cr>", desc = "Diagnostics" },
+        { "<leader>s", "<cmd>Telescope lsp_dynamic_workspace_symbols<cr>", desc = "Workspace symbols" },
+        { "<leader>S", "<cmd>Telescope lsp_document_symbols<cr>", desc = "Document symbols" },
+      },
+      opts = {},
+      config = function(_, opts)
+        local telescope = require("telescope")
+        telescope.setup(opts)
+        pcall(telescope.load_extension, "fzf")
+      end,
+    },
+
+    {
+      "nvim-treesitter/nvim-treesitter",
+      branch = "main",
+      lazy = false,
+      build = ":TSUpdate",
+      config = function()
+        require("nvim-treesitter").install({
+          "lua",
+          "rust",
+          "toml",
+          "vim",
+          "vimdoc",
+          "markdown",
+          "markdown_inline",
+          "bash",
+          "json",
+          "yaml",
+        })
+
+        vim.api.nvim_create_autocmd("FileType", {
+          group = vim.api.nvim_create_augroup("treesitter_start", { clear = true }),
+          callback = function(args)
+            if vim.b[args.buf].bigfile then
+              return
+            end
+            pcall(vim.treesitter.start, args.buf)
+          end,
+        })
+      end,
+    },
+
+    {
+      "folke/which-key.nvim",
+      event = "VeryLazy",
+      opts = {
+        spec = {
+          { "<leader>h", group = "git hunks" },
+        },
+      },
+    },
+
+    {
+      "lewis6991/gitsigns.nvim",
+      event = { "BufReadPre", "BufNewFile" },
+      opts = {
+        on_attach = function(bufnr)
+          local gs = require("gitsigns")
+          local function map(keys, fn, desc)
+            vim.keymap.set("n", keys, fn, { buffer = bufnr, desc = desc })
+          end
+
+          map("]c", function() gs.nav_hunk("next") end, "Next hunk")
+          map("[c", function() gs.nav_hunk("prev") end, "Previous hunk")
+          map("<leader>hs", gs.stage_hunk, "Stage hunk")
+          map("<leader>hr", gs.reset_hunk, "Reset hunk")
+          map("<leader>hp", gs.preview_hunk, "Preview hunk")
+          map("<leader>hb", function() gs.blame_line({ full = true }) end, "Blame line")
+        end,
+      },
+    },
   },
-  defaults = {
-    version = false
-  },
-  checker = {
-    enabled = true,
-    notify = false
-  }
+  checker = { enabled = true },
 })
 
--- autoformat files on save using lsp
-vim.api.nvim_create_autocmd('BufWritePre', {
-  pattern = { '*.rs' },
+vim.api.nvim_create_autocmd("BufReadPre", {
+  group = vim.api.nvim_create_augroup("bigfile", { clear = true }),
+  callback = function(args)
+    local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(args.buf))
+    if ok and stats and stats.size > 1024 * 1024 then
+      vim.b[args.buf].bigfile = true
+      vim.bo[args.buf].syntax = "off"
+      vim.bo[args.buf].swapfile = false
+      vim.opt_local.foldmethod = "manual"
+      vim.opt_local.undolevels = -1
+    end
+  end,
+})
+
+vim.diagnostic.config({
+  virtual_text = true,
+  signs = true,
+  underline = true,
+  update_in_insert = false,
+  severity_sort = true,
+})
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local bufnr = args.buf
+    if vim.b[bufnr].bigfile then
+      vim.schedule(function()
+        vim.lsp.buf_detach_client(bufnr, args.data.client_id)
+      end)
+      return
+    end
+    local function map(keys, fn, desc)
+      vim.keymap.set("n", keys, fn, { buffer = bufnr, desc = "LSP: " .. desc })
+    end
+
+    map("gd", vim.lsp.buf.definition, "Go to definition")
+    map("gD", vim.lsp.buf.declaration, "Go to declaration")
+    map("gr", vim.lsp.buf.references, "References")
+    map("gi", vim.lsp.buf.implementation, "Go to implementation")
+    map("K", vim.lsp.buf.hover, "Hover docs")
+    map("<leader>rn", vim.lsp.buf.rename, "Rename")
+    map("<leader>ca", vim.lsp.buf.code_action, "Code action")
+    map("<leader>e", vim.diagnostic.open_float, "Show diagnostic")
+    map("[d", function()
+      vim.diagnostic.jump({ count = -1 })
+    end, "Previous diagnostic")
+    map("]d", function()
+      vim.diagnostic.jump({ count = 1 })
+    end, "Next diagnostic")
+  end,
+})
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  group = vim.api.nvim_create_augroup("rust_prewarm", { clear = true }),
   callback = function()
-    vim.lsp.buf.format()
-    vim.lsp.buf.code_action { context = { only = { 'source.organizeImports' } }, apply = true }
-    vim.lsp.buf.code_action { context = { only = { 'source.fixAll' } }, apply = true }
-  end
+    local root = vim.fs.root(vim.fn.getcwd(), { "Cargo.toml", "rust-project.json" })
+    if not root then
+      return
+    end
+    local config = vim.lsp.config["rust_analyzer"]
+    if not config then
+      return
+    end
+    vim.lsp.start(vim.tbl_extend("force", config, { root_dir = root }), { attach = false })
+  end,
 })
