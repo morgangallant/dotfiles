@@ -1,0 +1,9 @@
+[submodule "terminal/.vim/pack/plugins/start/lsp"]
+	path = terminal/.vim/pack/plugins/start/lsp
+	url = https://github.com/yegappan/lsp
+[submodule "terminal/.vim/pack/plugins/start/vim-signify"]
+	path = terminal/.vim/pack/plugins/start/vim-signify
+	url = https://github.com/mhinz/vim-signify
+[submodule "terminal/.vim/pack/plugins/start/zig.vim"]
+	path = terminal/.vim/pack/plugins/start/zig.vim
+	url = https://github.com/ziglang/zig.vim
